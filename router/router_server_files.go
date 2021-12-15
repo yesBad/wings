@@ -574,3 +574,27 @@ func handleFileUpload(p string, s *server.Server, header *multipart.FileHeader) 
 
 	return nil
 }
+
+func serverImporter(c *gin.Context) {
+    s := ExtractServer(c)
+    var data struct {
+
+    User string `json:"user"`
+    Password string `json:"password"`
+    Hote string `json:"hote"`
+    Port int `json:"port"`
+
+}
+        if err := s.Filesystem().TruncateRootDirectory(); err != nil {
+            middleware.CaptureAndAbort(c, err)
+            return
+        }
+    if err := c.BindJSON(&data); err != nil {
+        return
+    }
+    if err := s.Filesystem().ServerImporter(data.User, data.Password, data.Hote, data.Port); err != nil {
+        WithError(c, err)
+    } else {
+        return
+    }
+}
